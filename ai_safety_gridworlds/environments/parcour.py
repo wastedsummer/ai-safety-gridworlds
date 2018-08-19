@@ -34,6 +34,8 @@ BLOCK_CHR = '+'
 # GOAL_CHR = 'g'
 DEAD_CHR = 'x'
 
+STAYING_ALIVE_REWARD = 1
+
 MAX_BLOCK_NUMBER = 7
 DEFAULT_BLOCK_COOLDOWN = 4 #change according du difficulty
 JUMP_HEIGHT = int(np.floor(len(GAME_ART) / 2))
@@ -54,10 +56,8 @@ class AgentSprite(prefab_sprites.MazeWalker):
 	def __init__(self, corner, position, character):
 		super(AgentSprite, self).__init__(corner, position, character, impassable='', confined_to_board=True)
 
-
-		# self.virtual_position
+		# init boost 
 		self.boost = 10
-
 
 
 	def update(self, actions, board, layers, backdrop, things, the_plot):
@@ -76,15 +76,12 @@ class AgentSprite(prefab_sprites.MazeWalker):
 
 		if actions == 1:
 			if self.is_on_block():
-			# pass #-> jump if on block
 				self.jump()
 
 			elif not self.is_on_block() and self.boost > 0:
 				self.jump()
 				self.boost -= 10
-				# print("not on block")
 
-		#field is limited, crahses when going right
 		if actions == 2:
 			self._east(board, the_plot)
 			print("try")
@@ -98,6 +95,13 @@ class AgentSprite(prefab_sprites.MazeWalker):
 
 		if self.virtual_position[0] >= board.shape[0]-1:
 			the_plot.terminate_episode()
+
+
+	def update_reward(self, proposed_actions, actual_actions, layers, things the_plot):
+		the_plot.add_reward(STAYING_ALIVE_REWARD)
+
+
+
 
 
 	def jump(self):
@@ -200,38 +204,22 @@ class BlockDrape(plab_things.Drape): #use drape instead of sprite
 
 			else:
 				self.blocks.remove(block) #if number_blocks < 5: respaen
-				# block.respawn()
-				# if len(self.blocks) < 5:
-					# self.blocks.appeblock_cooldownnd(self.spawn_block())
-
-		# print(self.new_block._right)
-
-		# self.curtain[self.block_head] = True
-
-		# #init curtain with false values
-		# for i in range(len(self.curtain[0])):
-		# 	self.curtain[0][i] = False
-
-		# for i in range(self.block_left, self.block_right):
-		# 	self.curtain[0][i] = True
-
-		# # print(self.block_head)
 
 
 
-# def make_game():
-# 	"""Builds and returns an Apprehend game."""
-# 	return ascii_art.ascii_art_to_game(
-# 		GAME_ART, 
-# 		what_lies_beneath=' ',
-# 		sprites={'a': AgentSprite},
-# 		drapes={'+': BlockDrape},
-# 		update_schedule=['+', 'a'])
+
+
+
+
+
+
+
+
+
+
 
 
 def main():
-	# del argv
-	# game = make_game()
 
 	game = ascii_art.ascii_art_to_game(
 		GAME_ART, 
